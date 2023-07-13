@@ -3,13 +3,13 @@ const app = express();
 const bodyparser = require("body-parser");
 const cors = require("cors");
 const sequelize = require("./util/database");
-const userRoutes = require('./routers/userSignUpRoutes');
+const userAuthRoutes = require("./routers/userAuthRoutes");
 
 app.use(cors());
 
 app.use(bodyparser.json());
 
-app.use('/expense', userRoutes)
+app.use("/user", userAuthRoutes);
 
 sequelize
   .sync()
