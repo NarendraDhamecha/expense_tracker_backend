@@ -1,39 +1,41 @@
 const User = require("../models/userAuthModel");
+const bcrypt = require("bcrypt");
 
-exports.userSignUp = async (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  const name = req.body.name;
-  const mobileNo = req.body.mobileNo;
+exports.userSignUp = (req, res) => {
+  const { email, password, name, mobileNo } = req.body;
 
-  try {
-    const response = await User.create({
-      name,
-      mobileNo,
-      email,
-      password,
-    });
+  bcrypt.hash(password, 10, async (err, hash) => {
+    try {
+      await User.create({
+        name,
+        mobileNo,
+        email,
+        password: hash,
+      });
 
-    res.json(response);
-  } catch (err) {
-    res.status(401).send(err);
-  }
+      res.json({ message: "user created successfully" });
+    } catch (err) {
+      res.status(401).json(err);
+    }
+  });
 };
 
 exports.userLogIn = async (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { email, password } = req.body;
 
   try {
     const response = await User.findOne({ where: { email: email } });
 
     if (response !== null) {
-      response.dataValues.password === password
-        ? res.json({ message: "User login sucessful" })
-        : res.status(401).send({ message: "User not authorized" });
-    }
-    else{
-      res.status(404).send({ message: "User not found" })
+      bcrypt.compare(password, response.dataValues.password, (err, result) => {
+        if (result) {
+          res.json({ message: "User login sucessful" });
+        } else {
+          res.status(401).send({ message: "User not authorized" });
+        }
+      });
+    } else {
+      res.status(404).send({ message: "User not found" });
     }
   } catch (err) {
     console.log(err);
