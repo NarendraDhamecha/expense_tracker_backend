@@ -8,6 +8,7 @@ exports.addExpense = async (req, res) => {
       amount,
       description,
       category,
+      userId: req.user.id
     });
 
     res.json(response);
@@ -18,7 +19,7 @@ exports.addExpense = async (req, res) => {
 
 exports.getExpenses = async (req, res) => {
   try {
-    const response = await Expenses.findAll();
+    const response = await req.user.getExpenses();
     const data = [];
 
     for (let i of response) {
@@ -27,6 +28,7 @@ exports.getExpenses = async (req, res) => {
 
     res.json(data);
   } catch (err) {
+    console.log(err);
     res.status(404).json(err);
   }
 };
@@ -35,9 +37,10 @@ exports.deleteExpense = async (req, res) => {
   const id = req.params.id;
 
   try {
-    await Expenses.destroy({ where: { id: id } });
+    await Expenses.destroy({ where: { id: id, userId: req.user.id } });
     res.status(200).json({message: 'success'});
   } catch (err) {
+    console.log(err)
     res.status(404).json(err);
   }
 };

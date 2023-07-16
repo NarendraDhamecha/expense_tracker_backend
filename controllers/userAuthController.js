@@ -1,5 +1,6 @@
 const User = require("../models/userAuthModel");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
 
 exports.userSignUp = (req, res) => {
   const { email, password, name, mobileNo } = req.body;
@@ -20,6 +21,10 @@ exports.userSignUp = (req, res) => {
   });
 };
 
+const generateToken = (id) => {
+  return jwt.sign({userId: id}, 'NEOemuhE86WuAWQM3BTI5BZ36l9nETfW')
+} 
+
 exports.userLogIn = async (req, res) => {
   const { email, password } = req.body;
 
@@ -29,7 +34,7 @@ exports.userLogIn = async (req, res) => {
     if (response !== null) {
       bcrypt.compare(password, response.dataValues.password, (err, result) => {
         if (result) {
-          res.json({ message: "User login sucessful" });
+          res.json({ message: "User login sucessful" , token: generateToken(response.dataValues.id) });
         } else {
           res.status(401).send({ message: "User not authorized" });
         }
