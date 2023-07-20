@@ -5,9 +5,11 @@ const cors = require("cors");
 const sequelize = require("./util/database");
 const userAuthRoutes = require("./routers/userAuthRoutes");
 const expensesRoutes = require('./routers/expensesRoutes');
+const premiumFeaturesRoutes = require('./routers/premiumFeaturesRoutes');
 const authMiddleware = require('./middleware/authMiddleware');
 const User = require('./models/userAuthModel');
 const Expenses = require('./models/expensesModel');
+const Order = require('./models/premiumFeaturesModel')
 
 app.use(cors());
 
@@ -15,7 +17,12 @@ app.use(bodyparser.json());
 
 app.use("/user", userAuthRoutes);
 
-app.use('/expenses', authMiddleware, expensesRoutes)
+app.use('/expenses', authMiddleware, expensesRoutes);
+
+app.use('/purchase', authMiddleware, premiumFeaturesRoutes);
+
+User.hasMany(Order);
+Order.belongsTo(User);
 
 User.hasMany(Expenses);
 Expenses.belongsTo(User);

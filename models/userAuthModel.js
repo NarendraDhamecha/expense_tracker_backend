@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 const sequelize = require('../util/database');
 
 const User = sequelize.define('user', {
+
     id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -28,6 +29,11 @@ const User = sequelize.define('user', {
     password: {
         type: Sequelize.STRING,
         allowNull: false,
+    },
+
+    isPremium: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
     }
     
 });
