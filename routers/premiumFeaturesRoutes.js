@@ -4,6 +4,8 @@ const premiumFeaturesController = require('../controllers/premiumFeaturesControl
 
 router.get('/premiummembership', premiumFeaturesController.premiumFeatures);
 
-router.post('/updatetransactionstatus', premiumFeaturesController.updateTransactionStatus)
+router.post('/updatetransactionstatus', premiumFeaturesController.updateTransactionStatus);
+
+router.get('/showleaderboard', premiumFeaturesController.showLeaderboard)
 
 module.exports = router
