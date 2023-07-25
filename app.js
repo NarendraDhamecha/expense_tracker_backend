@@ -5,7 +5,8 @@ const cors = require("cors");
 const sequelize = require("./util/database");
 const userAuthRoutes = require("./routers/userAuthRoutes");
 const expensesRoutes = require('./routers/expensesRoutes');
-const premiumFeaturesRoutes = require('./routers/premiumFeaturesRoutes');
+const premiumFeatureRoutes = require('./routers/premiumFeatureRoutes');
+const purchasePremiumRoutes = require('./routers/purchasePremiumRoutes')
 const authMiddleware = require('./middleware/authMiddleware');
 const User = require('./models/userAuthModel');
 const Expenses = require('./models/expensesModel');
@@ -19,7 +20,9 @@ app.use("/user", userAuthRoutes);
 
 app.use('/expenses', authMiddleware, expensesRoutes);
 
-app.use('/purchase', authMiddleware, premiumFeaturesRoutes);
+app.use('/purchase', authMiddleware, purchasePremiumRoutes);
+
+app.use('/premium', authMiddleware, premiumFeatureRoutes);
 
 User.hasMany(Order);
 Order.belongsTo(User);
