@@ -6,11 +6,13 @@ const sequelize = require("./util/database");
 const userAuthRoutes = require("./routers/userAuthRoutes");
 const expensesRoutes = require('./routers/expensesRoutes');
 const premiumFeatureRoutes = require('./routers/premiumFeatureRoutes');
-const purchasePremiumRoutes = require('./routers/purchasePremiumRoutes')
+const purchasePremiumRoutes = require('./routers/purchasePremiumRoutes');
+const resetPasswordRoutes = require('./routers/resetPasswordRoutes');
 const authMiddleware = require('./middleware/authMiddleware');
 const User = require('./models/userAuthModel');
 const Expenses = require('./models/expensesModel');
 const Order = require('./models/premiumFeaturesModel')
+require('dotenv').config()
 
 app.use(cors());
 
@@ -23,6 +25,8 @@ app.use('/expenses', authMiddleware, expensesRoutes);
 app.use('/purchase', authMiddleware, purchasePremiumRoutes);
 
 app.use('/premium', authMiddleware, premiumFeatureRoutes);
+
+app.use('/password', resetPasswordRoutes);
 
 User.hasMany(Order);
 Order.belongsTo(User);
