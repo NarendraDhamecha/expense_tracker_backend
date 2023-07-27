@@ -11,7 +11,8 @@ const resetPasswordRoutes = require('./routers/resetPasswordRoutes');
 const authMiddleware = require('./middleware/authMiddleware');
 const User = require('./models/userAuthModel');
 const Expenses = require('./models/expensesModel');
-const Order = require('./models/premiumFeaturesModel')
+const Order = require('./models/premiumFeaturesModel');
+const Forgotpassword = require('./models/forgotPasswordModel');
 require('dotenv').config()
 
 app.use(cors());
@@ -33,6 +34,9 @@ Order.belongsTo(User);
 
 User.hasMany(Expenses);
 Expenses.belongsTo(User);
+
+User.hasMany(Forgotpassword);
+Forgotpassword.belongsTo(User);
 
 sequelize
   .sync()
