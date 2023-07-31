@@ -13,6 +13,7 @@ const User = require('./models/userAuthModel');
 const Expenses = require('./models/expensesModel');
 const Order = require('./models/premiumFeaturesModel');
 const Forgotpassword = require('./models/forgotPasswordModel');
+const DownloadedExpenses = require('./models/downloadedExpenses');
 require('dotenv').config()
 
 app.use(cors());
@@ -37,6 +38,9 @@ Expenses.belongsTo(User);
 
 User.hasMany(Forgotpassword);
 Forgotpassword.belongsTo(User);
+
+User.hasMany(DownloadedExpenses);
+DownloadedExpenses.belongsTo(User);
 
 sequelize
   .sync()

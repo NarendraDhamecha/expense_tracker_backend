@@ -1,5 +1,7 @@
 const Expenses = require("../models/expensesModel");
 const sequelize = require("../util/database");
+const AWS = require("aws-sdk");
+const DownloadedExpenses = require('../models/downloadedExpenses')
 
 exports.addExpense = async (req, res) => {
   const { amount, description, category } = req.body;
@@ -52,16 +54,67 @@ exports.deleteExpense = async (req, res) => {
   try {
     const response = await Expenses.destroy({
       where: { id: id, userId: req.user.id },
-      transaction: t
+      transaction: t,
     });
 
-    await req.user.update({totalExpenses: req.user.totalExpenses - amount}, {transaction: t})
+    await req.user.update(
+      { totalExpenses: req.user.totalExpenses - amount },
+      { transaction: t }
+    );
     t.commit();
     res.status(201).json(response);
-
   } catch (err) {
     console.log(err);
-    t.rollback()
+    t.rollback();
     res.status(500).json(err);
   }
 };
+
+exports.downloadExpenses = async (req, res) => {
+  try {
+    const expenses = await req.user.getExpenses();
+    const stringifiedExpenses = JSON.stringify(expenses);
+    const userId = req.user.id;
+    const filename = `Expenses${userId}/${new Date()}.txt`;
+    const fileURL = await uploadToS3(stringifiedExpenses, filename);
+    await DownloadedExpenses.create({fileURL, userId})
+    res.json({ fileURL, message: "successfully downloaded" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+};
+
+const uploadToS3 = (data, filename) => {
+  const s3bucket = new AWS.S3({
+    accessKeyId: process.env.IAM_USER_KEY,
+    secretAccessKey: process.env.IAM_USER_SECRET,
+  });
+
+  const params = {
+    Bucket: process.env.BUCKET_NAME,
+    Key: filename,
+    Body: data,
+    ACL: "public-read",
+  };
+
+  return new Promise((resolve, reject) => {
+    s3bucket.upload(params, (err, s3response) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(s3response.Location);
+      }
+    });
+  });
+};
+
+exports.getDownloadedExpenses = async (req, res) => {
+  try{
+    const response = await DownloadedExpenses.findAll({where: {userId: req.user.id}})
+    res.json(response)
+  }
+  catch(err){
+    res.status(500).json(err);
+  }
+}
