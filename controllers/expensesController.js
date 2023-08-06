@@ -1,7 +1,7 @@
 const Expenses = require("../models/expensesModel");
 const sequelize = require("../util/database");
 const AWS = require("aws-sdk");
-const DownloadedExpenses = require('../models/downloadedExpenses')
+const DownloadedExpenses = require("../models/downloadedExpenses");
 
 exports.addExpense = async (req, res) => {
   const { amount, description, category } = req.body;
@@ -24,7 +24,6 @@ exports.addExpense = async (req, res) => {
     await t.commit();
     res.json(response);
   } catch (err) {
-    console.log(err);
     await t.rollback();
     res.status(500).json(err);
   }
@@ -32,16 +31,24 @@ exports.addExpense = async (req, res) => {
 
 exports.getExpenses = async (req, res) => {
   try {
-    const response = await req.user.getExpenses();
-    const data = [];
+    const page = Number(req.query.page);
+    const rows = Number(req.query.rows);
 
-    for (let i of response) {
-      data.push(i.dataValues);
-    }
+    const totalCount = await req.user.countExpenses();
+    const response = await req.user.getExpenses({
+      offset: (page - 1) * rows,
+      limit: rows,
+    });
 
-    res.json(data);
+    res.json({
+      response,
+      currentPage: page,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      hasNextPage: page * rows < totalCount,
+      hasPreviousPage: page > 1,
+    });
   } catch (err) {
-    console.log(err);
     res.status(404).json(err);
   }
 };
@@ -64,7 +71,6 @@ exports.deleteExpense = async (req, res) => {
     t.commit();
     res.status(201).json(response);
   } catch (err) {
-    console.log(err);
     t.rollback();
     res.status(500).json(err);
   }
@@ -77,10 +83,9 @@ exports.downloadExpenses = async (req, res) => {
     const userId = req.user.id;
     const filename = `Expenses${userId}/${new Date()}.txt`;
     const fileURL = await uploadToS3(stringifiedExpenses, filename);
-    await DownloadedExpenses.create({fileURL, userId})
+    await DownloadedExpenses.create({ fileURL, userId });
     res.json({ fileURL, message: "successfully downloaded" });
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };
@@ -110,11 +115,13 @@ const uploadToS3 = (data, filename) => {
 };
 
 exports.getDownloadedExpenses = async (req, res) => {
-  try{
-    const response = await DownloadedExpenses.findAll({where: {userId: req.user.id}})
-    res.json(response)
-  }
-  catch(err){
+  try {
+    const response = await DownloadedExpenses.findAll({
+      where: { userId: req.user.id },
+      order: [["createdAt", "DESC"]]
+    });
+    res.json(response);
+  } catch (err) {
     res.status(500).json(err);
   }
-}
+};

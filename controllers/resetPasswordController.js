@@ -13,6 +13,8 @@ exports.forgotPassword = async (req, res) => {
       const id = uuid.v4();
       await user.createForgotpassword({ id: id, active: true });
 
+      console.log(process.env.EMAIL);
+
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -39,7 +41,6 @@ exports.forgotPassword = async (req, res) => {
       throw new Error("User not exist");
     }
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };
@@ -89,7 +90,6 @@ exports.updatePassword = async (req, res) => {
       bcrypt.hash(newpassword, 10, async (err, hash) => {
         try {
           if (err) {
-            console.log(err);
             throw new Error(err);
           }
 
@@ -97,7 +97,6 @@ exports.updatePassword = async (req, res) => {
           await forgotpassword.update({ active: false });
           res.json({ message: "successfully updated new password" });
         } catch (err) {
-          console.log(err);
           res.status(500).json(err);
         }
       });
@@ -105,7 +104,6 @@ exports.updatePassword = async (req, res) => {
       res.status(404).json({ error: "user not exist" });
     }
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };

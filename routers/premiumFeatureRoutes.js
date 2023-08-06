@@ -1,7 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const premiumFeatures = require('../controllers/premiumFeaturesController');
+const premiumFeatures = require("../controllers/premiumFeaturesController");
 
-router.get('/showleaderboard', premiumFeatures.showLeaderboard);
+router.get("/showleaderboard", premiumFeatures.showLeaderboard);
 
 module.exports = router;

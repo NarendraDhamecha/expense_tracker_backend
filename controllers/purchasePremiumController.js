@@ -4,8 +4,8 @@ const Order = require("../models/premiumFeaturesModel");
 exports.purchaseMembership = async (req, res) => {
   try {
     const rzp = new Razorpay({
-      key_id: "rzp_test_buE7dGkucuP8Ax",
-      key_secret: "n8hoNngezGRbUJhPn0Nc4HCQ",
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
     const amount = 4500;
@@ -23,7 +23,6 @@ exports.purchaseMembership = async (req, res) => {
         });
     });
   } catch (err) {
-    console.log(err);
     res.status(403).json({ message: "something went wrong", error: err });
   }
 };
@@ -33,18 +32,20 @@ exports.updateTransactionStatus = async (req, res) => {
 
   try {
     const order = await Order.findOne({ where: { orderId: order_id } });
-    if(status === 'failed'){
+    if (status === "failed") {
       await order.update({ paymentId: payment_id, status: "FAILED" });
-      return res.json({message: "Transaction Failed"})
+      return res.json({ message: "Transaction Failed" });
     }
-    const promise1 = order.update({ paymentId: payment_id, status: "SUCCESSFUL" });
+    const promise1 = order.update({
+      paymentId: payment_id,
+      status: "SUCCESSFUL",
+    });
     const promise2 = req.user.update({ isPremium: true });
     Promise.all([promise1, promise2])
-    .then(() => res.json({message: "Transaction Successful"}))
-    .catch((err) =>{
-      throw new Error(err)
-    })
-    
+      .then(() => res.json({ message: "Transaction Successful" }))
+      .catch((err) => {
+        throw new Error(err);
+      });
   } catch (err) {
     res.status(402).json(err);
   }

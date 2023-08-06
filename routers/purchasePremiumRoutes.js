@@ -1,9 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const purchasePremium = require('../controllers/purchasePremiumController');
+const purchasePremium = require("../controllers/purchasePremiumController");
 
-router.get('/membership', purchasePremium.purchaseMembership);
+router.get("/membership", purchasePremium.purchaseMembership);
 
-router.post('/updatetransactionstatus', purchasePremium.updateTransactionStatus);
+router.post(
+  "/updatetransactionstatus",
+  purchasePremium.updateTransactionStatus
+);
 
-module.exports = router
+module.exports = router;
