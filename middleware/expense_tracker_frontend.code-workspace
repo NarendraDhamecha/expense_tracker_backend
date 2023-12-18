@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../../expense_tracker_frontend"
+		},
+		{
+			"path": ".."
+		}
+	],
+	"settings": {}
+}

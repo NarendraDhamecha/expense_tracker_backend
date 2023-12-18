@@ -8,12 +8,11 @@ exports.forgotPassword = async (req, res) => {
   try {
     const email = req.body.email;
     const user = await User.findOne({ where: { email: email } });
+    console.log(email)
 
     if (user) {
       const id = uuid.v4();
       await user.createForgotpassword({ id: id, active: true });
-
-      console.log(process.env.EMAIL);
 
       const transporter = nodemailer.createTransport({
         service: "gmail",

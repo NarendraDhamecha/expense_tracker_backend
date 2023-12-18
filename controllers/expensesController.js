@@ -21,6 +21,7 @@ exports.addExpense = async (req, res) => {
       { totalExpenses: req.user.totalExpenses + amount },
       { transaction: t }
     );
+
     await t.commit();
     res.json(response);
   } catch (err) {
@@ -118,7 +119,7 @@ exports.getDownloadedExpenses = async (req, res) => {
   try {
     const response = await DownloadedExpenses.findAll({
       where: { userId: req.user.id },
-      order: [["createdAt", "DESC"]]
+      order: [["createdAt", "DESC"]],
     });
     res.json(response);
   } catch (err) {
