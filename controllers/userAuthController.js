@@ -29,10 +29,11 @@ exports.userLogIn = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email: email } });
+    const user = await User.findOne({ email: email });
+    console.log(user)
 
     if (user !== null) {
-      bcrypt.compare(password, user.dataValues.password, (err, result) => {
+      bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
           throw new Error(err);
         }
@@ -40,8 +41,8 @@ exports.userLogIn = async (req, res) => {
         if (result) {
           res.json({
             message: "User login sucessful",
-            token: generateToken(user.dataValues.id),
-            isPremium: user.dataValues.isPremium,
+            token: generateToken(user.id),
+            isPremium: user.isPremium,
           });
         } else {
           return res.status(401).json({ message: "User not authorized" });

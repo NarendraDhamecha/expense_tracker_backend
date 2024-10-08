@@ -6,7 +6,7 @@ const Authorization = async (req, res, next) => {
   const userId = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
   try {
-    const user = await User.findByPk(userId.userId);
+    const user = await User.findById(userId.userId);
     req.user = user;
     next();
   } catch (err) {

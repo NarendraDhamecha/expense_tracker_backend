@@ -7,18 +7,19 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 require("dotenv").config();
-const sequelize = require("./util/database");
+// const sequelize = require("./util/database");
 const userAuthRoutes = require("./routers/userAuthRoutes");
 const expensesRoutes = require("./routers/expensesRoutes");
 const premiumFeatureRoutes = require("./routers/premiumFeatureRoutes");
 const purchasePremiumRoutes = require("./routers/purchasePremiumRoutes");
 const resetPasswordRoutes = require("./routers/resetPasswordRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
-const User = require("./models/userAuthModel");
-const Expenses = require("./models/expensesModel");
-const Order = require("./models/premiumFeaturesModel");
-const Forgotpassword = require("./models/forgotPasswordModel");
-const DownloadedExpenses = require("./models/downloadedExpenses");
+// const User = require("./models/userAuthModel");
+// const Expenses = require("./models/expensesModel");
+// const Order = require("./models/premiumFeaturesModel");
+// const Forgotpassword = require("./models/forgotPasswordModel");
+// const DownloadedExpenses = require("./models/downloadedExpenses");
+const mongoose = require('mongoose');
 
 const accessLogStream = fs.createWriteStream(
   path.join(__dirname, "access.log"),
@@ -43,19 +44,26 @@ app.use("/premium", authMiddleware, premiumFeatureRoutes);
 
 app.use("/password", resetPasswordRoutes);
 
-User.hasMany(Order);
-Order.belongsTo(User);
+// User.hasMany(Order);
+// Order.belongsTo(User);
 
-User.hasMany(Expenses);
-Expenses.belongsTo(User);
+// User.hasMany(Expenses);
+// Expenses.belongsTo(User);
 
-User.hasMany(Forgotpassword);
-Forgotpassword.belongsTo(User);
+// User.hasMany(Forgotpassword);
+// Forgotpassword.belongsTo(User);
 
-User.hasMany(DownloadedExpenses);
-DownloadedExpenses.belongsTo(User);
+// User.hasMany(DownloadedExpenses);
+// DownloadedExpenses.belongsTo(User);
 
-sequelize
-  .sync()
-  .then(() => app.listen(process.env.PORT || 4000))
-  .catch((error) => console.log(error));
+
+mongoose.connect(process.env.MONGODB_URL).then((connection) => {
+  console.log("Connected!")
+  app.listen(process.env.PORT || 4000)
+}).catch(error => {
+  console.log("Error while connecting mongodb", error)
+})
+// sequelize
+//   .sync()
+//   .then(() => app.listen(process.env.PORT || 4000))
+//   .catch((error) => console.log(error));

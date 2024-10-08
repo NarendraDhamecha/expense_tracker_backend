@@ -7,12 +7,11 @@ const Forgotpassword = require("../models/forgotPasswordModel");
 exports.forgotPassword = async (req, res) => {
   try {
     const email = req.body.email;
-    const user = await User.findOne({ where: { email: email } });
-    console.log(email)
+    const user = await User.findOne({ email: email });
 
     if (user) {
       const id = uuid.v4();
-      await user.createForgotpassword({ id: id, active: true });
+      await Forgotpassword.create({ id: id, active: true, userId: user._id });
 
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -48,7 +47,7 @@ exports.resetPassword = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const forgotPassword = await Forgotpassword.findOne({ where: { id: id } });
+    const forgotPassword = await Forgotpassword.findOne({ id: id });
 
     if (forgotPassword && forgotPassword.active) {
       res.send(`<html>
@@ -81,9 +80,9 @@ exports.updatePassword = async (req, res) => {
     const id = req.params.id;
     const newpassword = req.query.newpassword;
 
-    const forgotpassword = await Forgotpassword.findOne({ where: { id: id } });
+    const forgotpassword = await Forgotpassword.findOne({ id: id });
 
-    const user = await User.findOne({ where: { id: forgotpassword.userId } });
+    const user = await User.findById(forgotpassword.userId);
 
     if (user) {
       bcrypt.hash(newpassword, 10, async (err, hash) => {
@@ -92,8 +91,12 @@ exports.updatePassword = async (req, res) => {
             throw new Error(err);
           }
 
-          await user.update({ password: hash });
-          await forgotpassword.update({ active: false });
+          user.password = hash;
+          await user.save();
+          forgotpassword.active = false;
+          await forgotpassword.save();
+          // await user.update({ password: hash });
+          // await forgotpassword.update({ active: false });
           res.json({ message: "successfully updated new password" });
         } catch (err) {
           res.status(500).json(err);
